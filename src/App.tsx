@@ -6,7 +6,7 @@ import { clampMin } from "./utils/number";
 import { loadBudgetState, saveBudgetState } from "./utils/storage";
 import { Header } from "./components/Header";
 import { BudgetSummary } from "./components/BudgetSummary";
-
+import { ExpenseForm } from "./components/ExpenseForm";
 function makeId(): ItemId{
   return crypto.randomUUID ? crypto.randomUUID() : String(Date.now() + Math.random());
 }
@@ -118,55 +118,18 @@ function resetAll(): void {
             onBudgetChange={setBudget}
             totals={totals}/>
 
-        <div className="p-4 rounded-xl border border-slate-800 bg-stone-900 space-y-3">
-          <h2 className="text-xl font-semibold">Dodaj planowany wydatek</h2>
-
-          <form onSubmit={handleSubmit} className="flex gap-3 flex-wrap">
-            <input
-              className="px-3 py-2 rounded bg-black border border-slate-700"
-              placeholder="Nazwa (np. Czynsz)"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-            />
-
-
-            <select
-              value={category}
-              onChange={(e) => setCategory(e.target.value as Category)}
-              className="px-3 py-2 rounded bg-black border border-slate-700"
-            >
-              {CATEGORIES.map((c) => (
-                <option key={c} value={c}>
-                  {c}
-                </option>
-              ))}
-            </select>
-
-            <input
-              type="number"
-              step="0.01"
-              className="px-3 py-2 rounded bg-black border border-slate-700"
-              placeholder="Kwota"
-              value={price}
-              onChange={(e) => setPrice(e.target.value)}
-            />
-
-            <input
-              type="number"
-              min={1}
-              className="px-3 py-2 rounded bg-black border border-slate-700 w-24"
-              value={qty}
-              onChange={(e) => setQty(clampMin(Number(e.target.value), 1))}
-            />
-
-            <button
-              type="submit"
-              className="px-3 py-2 bg-green-600 rounded-lg hover:bg-green-500"
-            >
-              Dodaj
-            </button>
-          </form>
-        </div>
+        <ExpenseForm
+  name={name}
+  setName={setName}
+  price={price}
+  setPrice={setPrice}
+  qty={qty}
+  setQty={setQty}
+  category={category}
+  setCategory={setCategory}
+  onSubmit={handleSubmit}
+  categories={CATEGORIES}
+/>
 
      
         <div className="p-4 rounded-xl border border-slate-800 bg-stone-900 space-y-3">
