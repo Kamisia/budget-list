@@ -1,23 +1,7 @@
 import { useState, useMemo, useEffect } from "react"
-type ItemId = string;
-type Category = "Rachunki" | "Edukacja" | "Wyżywienie" | "Rozrywka" | "Oszczędności" | "Inne";
+import type { Category, Item, ItemId, StoredState } from "./types/budget";
+import { CATEGORIES } from "./types/budget";
 
-interface Item {
-  id: ItemId;
-  category: Category;
-  name: string;
-  price: number;
-  qty: number;
-  bought: boolean;
-}
-const CATEGORIES: Category[] = [
-  "Rachunki",
-  "Edukacja",
-  "Wyżywienie",
-  "Rozrywka",
-  "Oszczędności",
-  "Inne",
-];
 const STORAGE_KEY = "household_budget_v1";
 function makeId(): ItemId{
   return crypto.randomUUID ? crypto.randomUUID() : String(Date.now() + Math.random());
@@ -31,10 +15,6 @@ function moneyPLN(n: number): string {
     currency: "PLN",
   }).format(n);
 }
-type StoredState = {
-  budget: number;
-  items: Item[];
-};
 
 function loadStoredState(): StoredState | null {
   try {
