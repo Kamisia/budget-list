@@ -1,28 +1,32 @@
 import { useState, useMemo, useEffect } from "react"
 import type { Category, Item, ItemId,  } from "./types/budget";
 import { CATEGORIES } from "./types/budget";
-import { moneyPLN } from "./utils/money";
 import { clampMin } from "./utils/number";
 import { loadBudgetState, saveBudgetState } from "./utils/storage";
 import { Header } from "./components/Header";
 import { BudgetSummary } from "./components/BudgetSummary";
 import { ExpenseForm } from "./components/ExpenseForm";
 import { ExpenseList } from "./components/ExpenseList";
+
 function makeId(): ItemId{
   return crypto.randomUUID ? crypto.randomUUID() : String(Date.now() + Math.random());
 }
 
-
+const DEFAULT_BUDGET = 5000;
 
 
 
 export default function App() {
+//żeby localStorage czytany tylko raz (na mount)
+ const [budget, setBudget] = useState<number>(() => {
+    const initial = loadBudgetState();
+    return initial?.budget ?? DEFAULT_BUDGET;
+  });
 
-  const initial = loadBudgetState();
-
-  const [budget, setBudget] = useState<number>(initial?.budget ?? 5000);
-  const [items, setItems] = useState<Item[]>(initial?.items ?? []);
-
+  const [items, setItems] = useState<Item[]>(() => {
+    const initial = loadBudgetState();
+    return initial?.items ?? [];
+  });
   const [name, setName] = useState<string>("");
   const [price, setPrice] = useState<string>("");
   const [qty, setQty] = useState<number>(1);
@@ -73,13 +77,14 @@ export default function App() {
     );
   }
 function resetAll(): void {
-    saveBudgetState({ budget: 5000, items: [] });
-    setBudget(5000);
+    const nextBudget = DEFAULT_BUDGET;
+    setBudget(nextBudget);
     setItems([]);
     setName("");
     setCategory("Rachunki");
     setPrice("");
     setQty(1);
+    saveBudgetState({ budget: nextBudget, items: [] });
   }
  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -137,8 +142,7 @@ function resetAll(): void {
   onRemove={removeItem}
   onUpdateQty={updateQty}
 />
-     
-       
+
       </div>
     </div>
   );
