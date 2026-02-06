@@ -1,4 +1,4 @@
-// src/types/budget.ts
+
 
 export type ItemId = string;
 
