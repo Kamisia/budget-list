@@ -1,40 +1,61 @@
+import { useState } from "react";
 import type { Category } from "../types/budget";
-import { clampMin } from "../utils/number";
 
-type ExpenseFormProps = {
+type NewExpense = {
   name: string;
-  setName: (v: string) => void;
-
-  price: string;
-  setPrice: (v: string) => void;
-
-  qty: number;
-  setQty: (v: number) => void;
-
   category: Category;
-  setCategory: (v: Category) => void;
-
-  onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
-  categories: Category[];
+  price: number;
+  qty: number;
 };
 
-export function ExpenseForm({
-  name,
-  setName,
-  price,
-  setPrice,
-  qty,
-  setQty,
-  category,
-  setCategory,
-  onSubmit,
+type Props = {
+  categories: readonly Category[];
+  defaultCategory?: Category;
+  onAdd: (expense: NewExpense) => void;
+};
+
+function clampMin(n: number, min: number) {
+  return n < min ? min : n;
+}
+
+export default function ExpenseForm({
   categories,
-}: ExpenseFormProps) {
+  defaultCategory = "Rachunki",
+  onAdd,
+}: Props) {
+  const [name, setName] = useState("");
+  const [category, setCategory] = useState<Category>(defaultCategory);
+  const [price, setPrice] = useState(""); 
+  const [qty, setQty] = useState(1);
+
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+
+    const trimmedName = name.trim();
+    const numericPrice = Number(price);
+
+    if (!trimmedName) return;
+    if (!Number.isFinite(numericPrice) || numericPrice <= 0) return;
+    if (qty < 1) return;
+
+    onAdd({
+      name: trimmedName,
+      category,
+      price: Number(numericPrice.toFixed(2)),
+      qty,
+    });
+
+   
+    setName("");
+    setPrice("");
+    setQty(1);
+  }
+
   return (
     <div className="p-4 rounded-xl border border-slate-800 bg-stone-900 space-y-3">
       <h2 className="text-xl font-semibold">Dodaj planowany wydatek</h2>
 
-      <form onSubmit={onSubmit} className="flex gap-3 flex-wrap">
+      <form onSubmit={handleSubmit} className="flex gap-3 flex-wrap">
         <input
           className="px-3 py-2 rounded bg-black border border-slate-700"
           placeholder="Nazwa (np. Czynsz)"

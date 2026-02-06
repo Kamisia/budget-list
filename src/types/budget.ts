@@ -32,3 +32,12 @@ export type StoredState = {
   budget: number;
   items: Item[];
 };
+
+export type Totals = {
+  plannedTotal: number;
+  spentTotal: number;
+  plannedRemaining: number;
+  actualRemaining: number;
+  plannedOver: boolean;
+  actualOver: boolean;
+};

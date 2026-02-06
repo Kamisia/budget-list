@@ -1,14 +1,7 @@
 import { clampMin } from "../utils/number";
 import { moneyPLN } from "../utils/money";
+import type { Totals } from "../types/budget";
 
-type Totals = {
-  plannedTotal: number;
-  spentTotal: number;
-  plannedRemaining: number;
-  actualRemaining: number;
-  plannedOver: boolean;
-  actualOver: boolean;
-};
 
 type BudgetSummaryProps = {
   budget: number;
