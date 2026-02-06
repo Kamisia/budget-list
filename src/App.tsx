@@ -1,17 +1,34 @@
-import { useState } from "react"
+import { useState, useMemo } from "react"
 type ItemId = string;
+type Category = "Rachunki" | "Edukacja" | "Wyżywienie" | "Rozrywka" | "Oszczędności" | "Inne";
+
 interface Item {
   id:ItemId;
+  category: Category;
   name:string;
   price:number;
   qty:number;
   bought:boolean;
 }
+const CATEGORIES: Category[] = [
+  "Rachunki",
+  "Edukacja",
+  "Wyżywienie",
+  "Rozrywka",
+  "Oszczędności",
+  "Inne",
+];
 function makeId():ItemId{
   return crypto.randomUUID ? crypto.randomUUID() : String(Data.now() + Math.random());
 }
 function clampMin(n: number, min: number): number {
   return n < min ? min : n;
+}
+function moneyPLN(n: number): string {
+  return new Intl.NumberFormat("pl-PL", {
+    style: "currency",
+    currency: "PLN",
+  }).format(n);
 }
 export default function App() {
   const [budget, setBudget] = useState<number>(200);
@@ -20,7 +37,26 @@ export default function App() {
   const [name, setName] = useState<string>("");
   const [price, setPrice] = useState<string>("");
   const [qty, setQty] = useState<number>(1);
+  const [category, setCategory] = useState<Category>("Rachunki");
 
+    const totals = useMemo(() => {
+    const plannedTotal = items.reduce((sum, it) => sum + it.price * it.qty, 0);
+    const spentTotal = items
+      .filter((it) => it.bought)
+      .reduce((sum, it) => sum + it.price * it.qty, 0);
+
+    const plannedRemaining = budget - plannedTotal;
+    const actualRemaining = budget - spentTotal;
+
+    return {
+      plannedTotal,
+      spentTotal,
+      plannedRemaining,
+      actualRemaining,
+      plannedOver: plannedRemaining < 0,
+      actualOver: actualRemaining < 0,
+    };
+  }, [items, budget]);
 
   function addItem(newItem: Item): void {
     setItems(prev => [newItem, ...prev]);
@@ -35,13 +71,12 @@ export default function App() {
       )
     );
   }
-  function updateQty(id: ItemId, qty: number): void {
-  setItems(prev =>
-    prev.map(it =>
-      it.id === id ? { ...it, qty } : it
-    )
-  );
-}
+   function updateQty(id: ItemId, nextQty: number): void {
+    const q = clampMin(nextQty, 1);
+    setItems((prev) =>
+      prev.map((it) => (it.id === id ? { ...it, qty: q } : it))
+    );
+  }
 
  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -57,6 +92,7 @@ export default function App() {
     const item: Item = {
       id: makeId(),
       name: trimmedName,
+      category,
       price: numericPrice,
       qty,
       bought: false,
@@ -70,36 +106,120 @@ export default function App() {
   }
 
 
-  return (
+   return (
     <div className="min-h-screen bg-stone-950 text-white p-8">
       <div className="max-w-4xl mx-auto space-y-6">
-        <h1 className="text-3xl font-bold">Budget Grocery Planner</h1>
-      <div className = "bg-stone-900 p-4 rounded-xl border border-slate-800 space-y-4 ">
-        <div className="flex flex-col gap-3 items-center">
-          <span className="text-lg"> Budżet: <b> {budget} PLN</b></span>
-          <button onClick={()=> setBudget(b => b+10)} className="px-3 py-1 bg-blue-600 rounded-lg hover:bg-blue-500">
-            +10 PLN
-          </button>
-          <form onSubmit = {handleSubmit} className="flex gap-3 flex-wrap ">
-             <input
+        <h1 className="text-3xl font-bold">Planer budżetu domowego</h1>
+
+        
+        <div className="p-4 rounded-xl border border-slate-800 bg-stone-900 space-y-3">
+          <div className="flex items-center gap-4 flex-wrap">
+            <label className="flex items-center gap-2">
+              <span className="text-slate-200">Budżet miesięczny:</span>
+              <input
+                type="number"
+                min={0}
+                step={1}
+                value={budget}
+                onChange={(e) =>
+                  setBudget(clampMin(Number(e.target.value), 0))
+                }
+                className="px-3 py-2 rounded bg-black border border-slate-700 w-44"
+              />
+              <span className="text-slate-300">PLN</span>
+            </label>
+          </div>
+
+          <div className="grid sm:grid-cols-2 gap-3">
+            <div
+              className={`p-3 rounded-lg border ${
+                totals.plannedOver
+                  ? "border-red-700 bg-red-950/30"
+                  : "border-slate-800 bg-black/20"
+              }`}
+            >
+              <div className="text-sm text-slate-300">Po planowanych wydatkach</div>
+              <div className="mt-1">
+                <div className="text-slate-200">
+                  Plan: <b className="text-white">{moneyPLN(totals.plannedTotal)}</b>
+                </div>
+                <div className="text-slate-200">
+                  Zostanie:{" "}
+                  <b className={totals.plannedOver ? "text-red-300" : "text-green-300"}>
+                    {moneyPLN(totals.plannedRemaining)}
+                  </b>
+                </div>
+              </div>
+            </div>
+
+            <div
+              className={`p-3 rounded-lg border ${
+                totals.actualOver
+                  ? "border-red-700 bg-red-950/30"
+                  : "border-slate-800 bg-black/20"
+              }`}
+            >
+              <div className="text-sm text-slate-300">Rzeczywiście zostało teraz</div>
+              <div className="mt-1">
+                <div className="text-slate-200">
+                  Wydane: <b className="text-white">{moneyPLN(totals.spentTotal)}</b>
+                </div>
+                <div className="text-slate-200">
+                  Do dyspozycji:{" "}
+                  <b className={totals.actualOver ? "text-red-300" : "text-green-300"}>
+                    {moneyPLN(totals.actualRemaining)}
+                  </b>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <p className="text-xs text-slate-400">
+            * „Po planowanych wydatkach” odejmuje wszystkie wpisy. „Rzeczywiście zostało”
+            odejmuje tylko opłacone/kupione.
+          </p>
+        </div>
+
+        
+        <div className="p-4 rounded-xl border border-slate-800 bg-stone-900 space-y-3">
+          <h2 className="text-xl font-semibold">Dodaj planowany wydatek</h2>
+
+          <form onSubmit={handleSubmit} className="flex gap-3 flex-wrap">
+            <input
               className="px-3 py-2 rounded bg-black border border-slate-700"
-              placeholder="Nazwa"
+              placeholder="Nazwa (np. Czynsz)"
               value={name}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                setName(e.target.value)
-              }
+              onChange={(e) => setName(e.target.value)}
             />
-            <input type="number" step= "0.01" className="px-3 py-2 rounded bg-black border border-slate-700" placeholder="Cena" value={price} onChange={(e:React.ChangeEvent<HTMLInputElement>)=> setPrice(e.target.value)}/>
+
+            <select
+              value={category}
+              onChange={(e) => setCategory(e.target.value as Category)}
+              className="px-3 py-2 rounded bg-black border border-slate-700"
+            >
+              {CATEGORIES.map((c) => (
+                <option key={c} value={c}>
+                  {c}
+                </option>
+              ))}
+            </select>
+
+            <input
+              type="number"
+              step="0.01"
+              className="px-3 py-2 rounded bg-black border border-slate-700"
+              placeholder="Kwota"
+              value={price}
+              onChange={(e) => setPrice(e.target.value)}
+            />
+
             <input
               type="number"
               min={1}
               className="px-3 py-2 rounded bg-black border border-slate-700 w-24"
               value={qty}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                setQty(Number(e.target.value))
-              }
+              onChange={(e) => setQty(clampMin(Number(e.target.value), 1))}
             />
-
 
             <button
               type="submit"
@@ -107,80 +227,80 @@ export default function App() {
             >
               Dodaj
             </button>
-
           </form>
-          <div className="space-y-2">
-            <h2 className="text-xl font-semibold">Lista produktów</h2>
-            {items.length === 0 ? (
-              <p> Brak produktów na liście - dodaj za pomocą formularza</p>
-            ): (<ul className="space-y-2">
-                {items.map((it) => {
-                  const rowTotal = it.price * it.qty;
+        </div>
 
-                  return (
-                    <li
-                      key={it.id}
-                      className={`flex items-center justify-between gap-3 p-3 rounded-lg border border-slate-800 bg-black/30 ${
-                        it.bought ? "opacity-60" : ""
-                      }`}
-                    >
-                      <div className="flex items-center gap-3 min-w-0">
-                        <input
-                          type="checkbox"
-                          checked={it.bought}
-                          onChange={() => toggleBought(it.id)}
-                          className="h-4 w-4"
-                        />
+     
+        <div className="p-4 rounded-xl border border-slate-800 bg-stone-900 space-y-3">
+          <h2 className="text-xl font-semibold">Wydatki</h2>
 
-                        <div className="min-w-0">
-                          <div className="font-semibold truncate">{it.name}</div>
+          {items.length === 0 ? (
+            <p className="text-slate-300">Brak wpisów - dodaj wydatki powyżej.</p>
+          ) : (
+            <ul className="space-y-2">
+              {items.map((it) => {
+                const rowTotal = it.price * it.qty;
 
-                          <div className="text-sm text-slate-300 flex items-center gap-2 flex-wrap">
-                            <span>Cena: {it.price.toFixed(2)} PLN</span>
-                            <span>•</span>
+                return (
+                  <li
+                    key={it.id}
+                    className={`flex items-center justify-between gap-3 p-3 rounded-lg border border-slate-800 bg-black/30 ${
+                      it.bought ? "opacity-60" : ""
+                    }`}
+                  >
+                    <div className="flex items-center gap-3 min-w-0">
+                      <input
+                        type="checkbox"
+                        checked={it.bought}
+                        onChange={() => toggleBought(it.id)}
+                        className="h-4 w-4"
+                        title="Opłacone / kupione"
+                      />
 
-                            <label className="flex items-center gap-2">
-                              Ilość:
-                              <input
-                                type="number"
-                                min={1}
-                                className="px-2 py-1 rounded bg-black border border-slate-700 w-20"
-                                value={it.qty}
-                                disabled={it.bought}
-                                onChange={(
-                                  e: React.ChangeEvent<HTMLInputElement>
-                                ) => updateQty(it.id, Number(e.target.value))}
-                              />
-                            </label>
+                      <div className="min-w-0">
+                        <div className="font-semibold truncate">
+                          {it.name}{" "}
+                          <span className="text-xs text-slate-400 font-normal">
+                            • {it.category}
+                          </span>
+                        </div>
 
-                            <span>•</span>
-                            <span>
-                              Razem: <b>{rowTotal.toFixed(2)} PLN</b>
-                            </span>
-                          </div>
+                        <div className="text-sm text-slate-300 flex items-center gap-2 flex-wrap">
+                          <span>{moneyPLN(it.price)}</span>
+                          <span>×</span>
+
+                          <input
+                            type="number"
+                            min={1}
+                            className="px-2 py-1 rounded bg-black border border-slate-700 w-20"
+                            value={it.qty}
+                            disabled={it.bought}
+                            onChange={(e) => updateQty(it.id, Number(e.target.value))}
+                          />
+
+                          <span>=</span>
+                          <span>
+                            <b>{moneyPLN(rowTotal)}</b>
+                          </span>
                         </div>
                       </div>
+                    </div>
 
-                      <button
-                        onClick={() => removeItem(it.id)}
-                        className="px-3 py-2 rounded-lg bg-red-600 hover:bg-red-500"
-                      >
-                        Usuń
-                      </button>
-                    </li>
-                  );
-                })}
-              </ul>) }
-          </div>
-
+                    <button
+                      onClick={() => removeItem(it.id)}
+                      className="px-3 py-2 rounded-lg bg-red-600 hover:bg-red-500"
+                    >
+                      Usuń
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
         </div>
-<pre className="bg-black p-3 rounded-lg text-sm overflow-auto">{JSON.stringify({budget, items}, null, 2)}</pre>
-
-      </div>
-
       </div>
     </div>
-  )
+  );
 }
 
 
