@@ -4,7 +4,7 @@ import { clampMin } from "./utils/number";
 import { loadBudgetState, saveBudgetState, STORAGE_KEY } from "./utils/storage";
 import { Header } from "./components/Header";
 import { BudgetSummary } from "./components/BudgetSummary";
-import  ExpenseForm  from "./components/ExpenseForm.tsx";
+import ExpenseForm from "./components/ExpenseForm.tsx";
 import { ExpenseList } from "./components/ExpenseList";
 import { calculateTotals } from "./utils/totals";
 

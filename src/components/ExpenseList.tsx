@@ -1,5 +1,5 @@
 import type { Item, ItemId } from "../types/budget";
-import { ExpenseRow } from "./ExpenseRow";
+import  ExpenseRow  from "./ExpenseRow";
 
 type ExpenseListProps = {
   items: Item[];
