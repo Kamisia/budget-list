@@ -4,6 +4,7 @@ import { CATEGORIES } from "./types/budget";
 import { moneyPLN } from "./utils/money";
 import { clampMin } from "./utils/number";
 import { loadBudgetState, saveBudgetState } from "./utils/storage";
+import { Header } from "./components/Header";
 
 function makeId(): ItemId{
   return crypto.randomUUID ? crypto.randomUUID() : String(Date.now() + Math.random());
@@ -109,21 +110,7 @@ function resetAll(): void {
    return (
     <div className="min-h-screen bg-stone-950 text-white p-8">
       <div className="max-w-4xl mx-auto space-y-6">
-        <header className="flex items-start justify-between gap-4 flex-wrap">
-          <div>
-            <h1 className="text-3xl font-bold">Planer budżetu domowego</h1>
-            <p className="text-slate-400 text-sm mt-1">
-              Planowane wydatki vs. faktycznie opłacone — z zapisem w localStorage.
-            </p>
-          </div>
-
-          <button
-            onClick={resetAll}
-            className="px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700"
-          >
-            Reset danych
-          </button>
-        </header>
+        <Header onReset={resetAll} />
 
         
         <div className="p-4 rounded-xl border border-slate-800 bg-stone-900 space-y-3">
