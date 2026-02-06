@@ -3,12 +3,12 @@ type ItemId = string;
 type Category = "Rachunki" | "Edukacja" | "Wyżywienie" | "Rozrywka" | "Oszczędności" | "Inne";
 
 interface Item {
-  id:ItemId;
+  id: ItemId;
   category: Category;
-  name:string;
-  price:number;
-  qty:number;
-  bought:boolean;
+  name: string;
+  price: number;
+  qty: number;
+  bought: boolean;
 }
 const CATEGORIES: Category[] = [
   "Rachunki",
@@ -19,8 +19,8 @@ const CATEGORIES: Category[] = [
   "Inne",
 ];
 const STORAGE_KEY = "household_budget_v1";
-function makeId():ItemId{
-  return crypto.randomUUID ? crypto.randomUUID() : String(Data.now() + Math.random());
+function makeId(): ItemId{
+  return crypto.randomUUID ? crypto.randomUUID() : String(Date.now() + Math.random());
 }
 function clampMin(n: number, min: number): number {
   return n < min ? min : n;
@@ -56,14 +56,13 @@ function isStoredState(x: unknown): x is StoredState {
   if (typeof obj.budget !== "number") return false;
   if (!Array.isArray(obj.items)) return false;
 
-  // Minimalna walidacja elementów listy (żeby nie wywalić UI na złym storage)
   for (const it of obj.items) {
     if (!it || typeof it !== "object") return false;
     const item = it as Record<string, unknown>;
 
     if (typeof item.id !== "string") return false;
     if (typeof item.name !== "string") return false;
-    if (typeof item.category !== "string") return false;
+    if (!CATEGORIES.includes(item.category as Category)) return false;
     if (typeof item.price !== "number") return false;
     if (typeof item.qty !== "number") return false;
     if (typeof item.bought !== "boolean") return false;
@@ -73,22 +72,18 @@ function isStoredState(x: unknown): x is StoredState {
 }
 
 export default function App() {
-  const [budget, setBudget] = useState<number>(() => {
-  const stored = loadStoredState();
-  return stored?.budget ?? 5000;
-});
 
-const [items, setItems] = useState<Item[]>(() => {
-  const stored = loadStoredState();
-  return stored?.items ?? [];
-});
+  const initial = loadStoredState();
+
+  const [budget, setBudget] = useState<number>(initial?.budget ?? 5000);
+  const [items, setItems] = useState<Item[]>(initial?.items ?? []);
 
   const [name, setName] = useState<string>("");
   const [price, setPrice] = useState<string>("");
   const [qty, setQty] = useState<number>(1);
   const [category, setCategory] = useState<Category>("Rachunki");
 
-  
+
 
   useEffect(() => {
     const payload: StoredState = { budget, items };
@@ -157,7 +152,7 @@ function resetAll(): void {
       id: makeId(),
       name: trimmedName,
       category,
-      price: numericPrice,
+      price: Number(numericPrice.toFixed(2)),
       qty,
       bought: false,
     };
