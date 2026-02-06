@@ -7,6 +7,7 @@ import { loadBudgetState, saveBudgetState } from "./utils/storage";
 import { Header } from "./components/Header";
 import { BudgetSummary } from "./components/BudgetSummary";
 import { ExpenseForm } from "./components/ExpenseForm";
+import { ExpenseList } from "./components/ExpenseList";
 function makeId(): ItemId{
   return crypto.randomUUID ? crypto.randomUUID() : String(Date.now() + Math.random());
 }
@@ -130,75 +131,14 @@ function resetAll(): void {
   onSubmit={handleSubmit}
   categories={CATEGORIES}
 />
-
+<ExpenseList
+  items={items}
+  onToggleBought={toggleBought}
+  onRemove={removeItem}
+  onUpdateQty={updateQty}
+/>
      
-        <div className="p-4 rounded-xl border border-slate-800 bg-stone-900 space-y-3">
-          <h2 className="text-xl font-semibold">Wydatki</h2>
-
-          {items.length === 0 ? (
-            <p className="text-slate-300">Brak wpisów - dodaj wydatki powyżej.</p>
-          ) : (
-            <ul className="space-y-2">
-              {items.map((it) => {
-                const rowTotal = it.price * it.qty;
-
-                return (
-                  <li
-                    key={it.id}
-                    className={`flex items-center justify-between gap-3 p-3 rounded-lg border border-slate-800 bg-black/30 ${
-                      it.bought ? "opacity-60" : ""
-                    }`}
-                  >
-                    <div className="flex items-center gap-3 min-w-0">
-                      <input
-                        type="checkbox"
-                        checked={it.bought}
-                        onChange={() => toggleBought(it.id)}
-                        className="h-4 w-4"
-                        title="Opłacone / kupione"
-                      />
-
-                      <div className="min-w-0">
-                        <div className="font-semibold truncate">
-                          {it.name}{" "}
-                          <span className="text-xs text-slate-400 font-normal">
-                            • {it.category}
-                          </span>
-                        </div>
-
-                        <div className="text-sm text-slate-300 flex items-center gap-2 flex-wrap">
-                          <span>{moneyPLN(it.price)}</span>
-                          <span>×</span>
-
-                          <input
-                            type="number"
-                            min={1}
-                            className="px-2 py-1 rounded bg-black border border-slate-700 w-20"
-                            value={it.qty}
-                            disabled={it.bought}
-                            onChange={(e) => updateQty(it.id, Number(e.target.value))}
-                          />
-
-                          <span>=</span>
-                          <span>
-                            <b>{moneyPLN(rowTotal)}</b>
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-
-                    <button
-                      onClick={() => removeItem(it.id)}
-                      className="px-3 py-2 rounded-lg bg-red-600 hover:bg-red-500"
-                    >
-                      Usuń
-                    </button>
-                  </li>
-                );
-              })}
-            </ul>
-          )}
-        </div>
+       
       </div>
     </div>
   );
