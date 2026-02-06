@@ -6,6 +6,7 @@ import { Header } from "./components/Header";
 import { BudgetSummary } from "./components/BudgetSummary";
 import  ExpenseForm  from "./components/ExpenseForm.tsx";
 import { ExpenseList } from "./components/ExpenseList";
+import { calculateTotals } from "./utils/totals";
 
 function makeId(): string {
   return crypto.randomUUID
@@ -35,24 +36,10 @@ export default function App() {
     saveBudgetState({ budget, items });
   }, [budget, items]);
 
-    const totals = useMemo(() => {
-    const plannedTotal = items.reduce((sum, it) => sum + it.price * it.qty, 0);
-    const spentTotal = items
-      .filter((it) => it.bought)
-      .reduce((sum, it) => sum + it.price * it.qty, 0);
-
-    const plannedRemaining = budget - plannedTotal;
-    const actualRemaining = budget - spentTotal;
-
-    return {
-      plannedTotal,
-      spentTotal,
-      plannedRemaining,
-      actualRemaining,
-      plannedOver: plannedRemaining < 0,
-      actualOver: actualRemaining < 0,
-    };
-  }, [items, budget]);
+   const totals = useMemo(
+  () => calculateTotals(budget, items),
+  [budget, items]
+);
 
    function addItem(data: {
     name: string;
