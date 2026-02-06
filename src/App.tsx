@@ -1,13 +1,12 @@
 import { useState, useMemo, useEffect } from "react"
-import { CATEGORIES, type Item} from "./types/budget";
+import { CATEGORIES, type Item, type NewExpense} from "./types/budget";
 import { clampMin } from "./utils/number";
-import { loadBudgetState, saveBudgetState } from "./utils/storage";
+import { loadBudgetState, saveBudgetState, STORAGE_KEY } from "./utils/storage";
 import { Header } from "./components/Header";
 import { BudgetSummary } from "./components/BudgetSummary";
 import  ExpenseForm  from "./components/ExpenseForm.tsx";
 import { ExpenseList } from "./components/ExpenseList";
 import { calculateTotals } from "./utils/totals";
-import type { NewExpense } from "./types/budget";
 
 function makeId(): string {
   return crypto.randomUUID
@@ -74,7 +73,7 @@ export default function App() {
   }
 
   function resetAll() {
-    localStorage.removeItem("household_budget_v1");
+    localStorage.removeItem(STORAGE_KEY);
 
     setBudget(DEFAULT_BUDGET);
     setItems([]);
@@ -87,7 +86,7 @@ export default function App() {
 
         <BudgetSummary
             budget={budget}
-            onBudgetChange={setBudget}
+             onBudgetChange={(next) => setBudget(clampMin(next, 0))}
             totals={totals}/>
 
         <ExpenseForm

@@ -3,7 +3,7 @@
 import type { StoredState, Category } from "../types/budget";
 import { CATEGORIES } from "../types/budget";
 
-const STORAGE_KEY = "household_budget_v1";
+export const STORAGE_KEY = "household_budget_v1";
 
 function isStoredState(x: unknown): x is StoredState {
   if (!x || typeof x !== "object") return false;

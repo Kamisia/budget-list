@@ -1,6 +1,6 @@
 import type { Item, ItemId } from "../types/budget";
 import { moneyPLN } from "../utils/money";
-
+import { clampMin } from "../utils/number";
 type ExpenseRowProps = {
   item: Item;
   onToggleBought: (id: ItemId) => void;
@@ -8,7 +8,7 @@ type ExpenseRowProps = {
   onUpdateQty: (id: ItemId, nextQty: number) => void;
 };
 
-export function ExpenseRow({ item, onToggleBought, onRemove, onUpdateQty }: ExpenseRowProps) {
+export default function ExpenseRow({ item, onToggleBought, onRemove, onUpdateQty }: ExpenseRowProps) {
   const rowTotal = item.price * item.qty;
 
   return (
@@ -44,7 +44,7 @@ export function ExpenseRow({ item, onToggleBought, onRemove, onUpdateQty }: Expe
               className="px-2 py-1 rounded bg-black border border-slate-700 w-20"
               value={item.qty}
               disabled={item.bought}
-              onChange={(e) => onUpdateQty(item.id, Number(e.target.value))}
+              onChange={(e) => onUpdateQty(item.id, clampMin(Number(e.target.value), 1))}
             />
 
             <span>=</span>
