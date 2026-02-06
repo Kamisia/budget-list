@@ -1,10 +1,11 @@
 import { useState, useMemo, useEffect } from "react"
-import type { Category, Item, ItemId, StoredState } from "./types/budget";
+import type { Category, Item, ItemId,  } from "./types/budget";
 import { CATEGORIES } from "./types/budget";
 import { moneyPLN } from "./utils/money";
 import { clampMin } from "./utils/number";
 import { loadBudgetState, saveBudgetState } from "./utils/storage";
 import { Header } from "./components/Header";
+import { BudgetSummary } from "./components/BudgetSummary";
 
 function makeId(): ItemId{
   return crypto.randomUUID ? crypto.randomUUID() : String(Date.now() + Math.random());
@@ -112,76 +113,11 @@ function resetAll(): void {
       <div className="max-w-4xl mx-auto space-y-6">
         <Header onReset={resetAll} />
 
-        
-        <div className="p-4 rounded-xl border border-slate-800 bg-stone-900 space-y-3">
-          <div className="flex items-center gap-4 flex-wrap">
-            <label className="flex items-center gap-2">
-              <span className="text-slate-200">Budżet miesięczny:</span>
-              <input
-                type="number"
-                min={0}
-                step={1}
-                value={budget}
-                onChange={(e) =>
-                  setBudget(clampMin(Number(e.target.value), 0))
-                }
-                className="px-3 py-2 rounded bg-black border border-slate-700 w-44"
-              />
-              <span className="text-slate-300">PLN</span>
-            </label>
-          </div>
+        <BudgetSummary
+            budget={budget}
+            onBudgetChange={setBudget}
+            totals={totals}/>
 
-          <div className="grid sm:grid-cols-2 gap-3">
-            <div
-              className={`p-3 rounded-lg border ${
-                totals.plannedOver
-                  ? "border-red-700 bg-red-950/30"
-                  : "border-slate-800 bg-black/20"
-              }`}
-            >
-              <div className="text-sm text-slate-300">Po planowanych wydatkach</div>
-              <div className="mt-1">
-                <div className="text-slate-200">
-                  Plan: <b className="text-white">{moneyPLN(totals.plannedTotal)}</b>
-                </div>
-                <div className="text-slate-200">
-                  Zostanie:{" "}
-                  <b className={totals.plannedOver ? "text-red-300" : "text-green-300"}>
-                    {moneyPLN(totals.plannedRemaining)}
-                  </b>
-                </div>
-              </div>
-            </div>
-
-            <div
-              className={`p-3 rounded-lg border ${
-                totals.actualOver
-                  ? "border-red-700 bg-red-950/30"
-                  : "border-slate-800 bg-black/20"
-              }`}
-            >
-              <div className="text-sm text-slate-300">Rzeczywiście zostało teraz</div>
-              <div className="mt-1">
-                <div className="text-slate-200">
-                  Wydane: <b className="text-white">{moneyPLN(totals.spentTotal)}</b>
-                </div>
-                <div className="text-slate-200">
-                  Do dyspozycji:{" "}
-                  <b className={totals.actualOver ? "text-red-300" : "text-green-300"}>
-                    {moneyPLN(totals.actualRemaining)}
-                  </b>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <p className="text-xs text-slate-400">
-            * „Po planowanych wydatkach” odejmuje wszystkie wpisy. „Rzeczywiście zostało”
-            odejmuje tylko opłacone/kupione.
-          </p>
-        </div>
-
-        
         <div className="p-4 rounded-xl border border-slate-800 bg-stone-900 space-y-3">
           <h2 className="text-xl font-semibold">Dodaj planowany wydatek</h2>
 
@@ -192,6 +128,7 @@ function resetAll(): void {
               value={name}
               onChange={(e) => setName(e.target.value)}
             />
+
 
             <select
               value={category}
