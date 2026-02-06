@@ -1,5 +1,3 @@
-// src/utils/storage.ts
-
 import type { StoredState, Category } from "../types/budget";
 import { CATEGORIES } from "../types/budget";
 

@@ -31,7 +31,6 @@ export default function App() {
   });
  
 
-
   useEffect(() => {
     saveBudgetState({ budget, items });
   }, [budget, items]);
@@ -41,48 +40,49 @@ export default function App() {
   [budget, items]
 );
 
-   function addItem(data: NewExpense) {
-  const newItem: Item = {
+const actions = {
+  addItem(data: NewExpense) {
+     const newItem: Item = {
     id: makeId(),
     bought: false,
     ...data,
   };
 
   setItems(prev => [newItem, ...prev]);
-}
+  },
 
-   function removeItem(id: string) {
-    setItems((prev) => prev.filter((it) => it.id !== id));
-  }
+  removeItem(id: string) {
+    setItems(prev => prev.filter(it => it.id !== id));
+  },
 
-  function toggleBought(id: string) {
-    setItems((prev) =>
-      prev.map((it) =>
+  toggleBought(id: string) {
+    setItems(prev =>
+      prev.map(it =>
         it.id === id ? { ...it, bought: !it.bought } : it
       )
     );
-  }
-   function updateQty(id: string, nextQty: number) {
-    const q = clampMin(nextQty, 1);
+  },
 
-    setItems((prev) =>
-      prev.map((it) =>
+  updateQty(id: string, nextQty: number) {
+    const q = clampMin(nextQty, 1);
+    setItems(prev =>
+      prev.map(it =>
         it.id === id ? { ...it, qty: q } : it
       )
     );
-  }
+  },
 
-  function resetAll() {
+  resetAll() {
     localStorage.removeItem(STORAGE_KEY);
-
     setBudget(DEFAULT_BUDGET);
     setItems([]);
-  }
+  },
+};
 
    return (
     <div className="min-h-screen bg-stone-950 text-white p-8">
       <div className="max-w-4xl mx-auto space-y-6">
-        <Header onReset={resetAll} />
+        <Header onReset={actions.resetAll} />
 
         <BudgetSummary
             budget={budget}
@@ -91,13 +91,13 @@ export default function App() {
 
         <ExpenseForm
           categories={CATEGORIES}
-          onAdd={addItem}
+          onAdd={actions.addItem}
         />
         <ExpenseList
           items={items}
-          onToggleBought={toggleBought}
-          onRemove={removeItem}
-          onUpdateQty={updateQty}
+          onToggleBought={actions.toggleBought}
+          onRemove={actions.removeItem}
+          onUpdateQty={actions.updateQty}
         />
 
       </div>
