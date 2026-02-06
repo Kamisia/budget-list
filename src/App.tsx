@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react"
+import { useState, useMemo, useEffect } from "react"
 type ItemId = string;
 type Category = "Rachunki" | "Edukacja" | "Wyżywienie" | "Rozrywka" | "Oszczędności" | "Inne";
 
@@ -18,6 +18,7 @@ const CATEGORIES: Category[] = [
   "Oszczędności",
   "Inne",
 ];
+const STORAGE_KEY = "household_budget_v1";
 function makeId():ItemId{
   return crypto.randomUUID ? crypto.randomUUID() : String(Data.now() + Math.random());
 }
@@ -30,14 +31,69 @@ function moneyPLN(n: number): string {
     currency: "PLN",
   }).format(n);
 }
+type StoredState = {
+  budget: number;
+  items: Item[];
+};
+
+function loadStoredState(): StoredState | null {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return null;
+
+    const parsed: unknown = JSON.parse(raw);
+    if (!isStoredState(parsed)) return null;
+
+    return parsed;
+  } catch {
+    return null;
+  }
+}
+function isStoredState(x: unknown): x is StoredState {
+  if (!x || typeof x !== "object") return false;
+
+  const obj = x as Record<string, unknown>;
+  if (typeof obj.budget !== "number") return false;
+  if (!Array.isArray(obj.items)) return false;
+
+  // Minimalna walidacja elementów listy (żeby nie wywalić UI na złym storage)
+  for (const it of obj.items) {
+    if (!it || typeof it !== "object") return false;
+    const item = it as Record<string, unknown>;
+
+    if (typeof item.id !== "string") return false;
+    if (typeof item.name !== "string") return false;
+    if (typeof item.category !== "string") return false;
+    if (typeof item.price !== "number") return false;
+    if (typeof item.qty !== "number") return false;
+    if (typeof item.bought !== "boolean") return false;
+  }
+
+  return true;
+}
+
 export default function App() {
-  const [budget, setBudget] = useState<number>(200);
-  const [items, setItems] = useState<Item[]>([]);
+  const [budget, setBudget] = useState<number>(() => {
+  const stored = loadStoredState();
+  return stored?.budget ?? 5000;
+});
+
+const [items, setItems] = useState<Item[]>(() => {
+  const stored = loadStoredState();
+  return stored?.items ?? [];
+});
 
   const [name, setName] = useState<string>("");
   const [price, setPrice] = useState<string>("");
   const [qty, setQty] = useState<number>(1);
   const [category, setCategory] = useState<Category>("Rachunki");
+
+  
+
+  useEffect(() => {
+    const payload: StoredState = { budget, items };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+  }, [budget, items]);
 
     const totals = useMemo(() => {
     const plannedTotal = items.reduce((sum, it) => sum + it.price * it.qty, 0);
@@ -77,7 +133,15 @@ export default function App() {
       prev.map((it) => (it.id === id ? { ...it, qty: q } : it))
     );
   }
-
+function resetAll(): void {
+    localStorage.removeItem(STORAGE_KEY);
+    setBudget(5000);
+    setItems([]);
+    setName("");
+    setCategory("Rachunki");
+    setPrice("");
+    setQty(1);
+  }
  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
@@ -109,7 +173,21 @@ export default function App() {
    return (
     <div className="min-h-screen bg-stone-950 text-white p-8">
       <div className="max-w-4xl mx-auto space-y-6">
-        <h1 className="text-3xl font-bold">Planer budżetu domowego</h1>
+        <header className="flex items-start justify-between gap-4 flex-wrap">
+          <div>
+            <h1 className="text-3xl font-bold">Planer budżetu domowego</h1>
+            <p className="text-slate-400 text-sm mt-1">
+              Planowane wydatki vs. faktycznie opłacone — z zapisem w localStorage.
+            </p>
+          </div>
+
+          <button
+            onClick={resetAll}
+            className="px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700"
+          >
+            Reset danych
+          </button>
+        </header>
 
         
         <div className="p-4 rounded-xl border border-slate-800 bg-stone-900 space-y-3">
