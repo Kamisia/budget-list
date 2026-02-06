@@ -41,3 +41,9 @@ export type Totals = {
   plannedOver: boolean;
   actualOver: boolean;
 };
+export type NewExpense = {
+  name: string;
+  category: Category;
+  price: number;
+  qty: number;
+};

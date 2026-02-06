@@ -1,12 +1,7 @@
 import { useState } from "react";
-import type { Category } from "../types/budget";
+import type { Category, NewExpense } from "../types/budget";
 
-type NewExpense = {
-  name: string;
-  category: Category;
-  price: number;
-  qty: number;
-};
+
 
 type Props = {
   categories: readonly Category[];

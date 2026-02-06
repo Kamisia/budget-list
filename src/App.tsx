@@ -7,6 +7,7 @@ import { BudgetSummary } from "./components/BudgetSummary";
 import  ExpenseForm  from "./components/ExpenseForm.tsx";
 import { ExpenseList } from "./components/ExpenseList";
 import { calculateTotals } from "./utils/totals";
+import type { NewExpense } from "./types/budget";
 
 function makeId(): string {
   return crypto.randomUUID
@@ -41,20 +42,16 @@ export default function App() {
   [budget, items]
 );
 
-   function addItem(data: {
-    name: string;
-    category: Item["category"];
-    price: number;
-    qty: number;
-  }) {
-    const newItem: Item = {
-      id: makeId(),
-      bought: false,
-      ...data,
-    };
+   function addItem(data: NewExpense) {
+  const newItem: Item = {
+    id: makeId(),
+    bought: false,
+    ...data,
+  };
 
-    setItems((prev) => [newItem, ...prev]);
-  }
+  setItems(prev => [newItem, ...prev]);
+}
+
    function removeItem(id: string) {
     setItems((prev) => prev.filter((it) => it.id !== id));
   }
