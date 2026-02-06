@@ -1,3 +1,7 @@
+![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue)
+![React](https://img.shields.io/badge/React-18+-61dafb)
+![Tailwind](https://img.shields.io/badge/TailwindCSS-Enabled-38bdf8)
+
 # Household Budget Planner (React + TypeScript)
 
 Mini narzędzie do planowania budżetu domowego stworzone w React + TypeScript. Aplikacja pozwala planować wydatki, oznaczać je jako opłacone oraz kontrolować zarówno planowany, jak i rzeczywisty stan budżetu.
@@ -15,6 +19,9 @@ Projekt powstał jako aplikacja pokazująca:
 - myślenie produktowe przy projektowaniu narzędzia
 
 ---
+
+
+
 
 ## Funkcje (MVP)
 
@@ -104,6 +111,18 @@ npm run dev
 - Eksport/import danych
 
 ---
+
+## Technical highlights
+
+Podczas tworzenia projektu skupiłam się na:
+
+- użyciu `useMemo` tylko do derived state (totals), bez trzymania danych pochodnych w state
+- użyciu `useEffect` wyłącznie do side effects (persist do localStorage)
+- unikaniu overengineeringu — brak context/store/reducer przy małej skali aplikacji
+- rozdzieleniu domain logic (utils) od komponentów UI
+- kontrolowanym formularzu z lokalnym state zamiast globalnego zarządzania formem
+
+Celem było stworzenie małego, ale realistycznego narzędzia zamiast demo aplikacji.
 
 ## Autor
 
