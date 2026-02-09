@@ -2,129 +2,103 @@
 ![React](https://img.shields.io/badge/React-18+-61dafb)
 ![Tailwind](https://img.shields.io/badge/TailwindCSS-Enabled-38bdf8)
 
-# Household Budget Planner (React + TypeScript)
+# Household Budget Planner
 
-Mini narzędzie do planowania budżetu domowego stworzone w React + TypeScript. Aplikacja pozwala planować wydatki, oznaczać je jako opłacone oraz kontrolować zarówno planowany, jak i rzeczywisty stan budżetu.
+A small React application for planning and tracking household expenses against a monthly budget.
 
----
+The app helps visualize the difference between:
 
-## Cel projektu
+- planned expenses (what you expect to spend)
+- actual spending (what has already been paid)
 
-Projekt powstał jako aplikacja pokazująca:
-
-- poprawne użycie React hooks (`useState`, `useMemo`, `useEffect`)
-- unikanie overengineeringu
-- czysty podział logiki (domain logic vs UI)
-- typowanie TypeScript
-- myślenie produktowe przy projektowaniu narzędzia
+The goal of this project was to build a realistic, cleanly structured application focusing on correct React patterns, simplicity, and maintainable architecture rather than feature complexity.
 
 ---
 
+## Features
 
-
-
-## Funkcje (MVP)
-
-- Ustawienie budżetu
-- Dodawanie planowanych wydatków:
-  - nazwa
-  - kategoria
-  - cena
-  - ilość
-- Oznaczanie wydatków jako opłacone/kupione
-- Automatyczne obliczanie:
-  - **Po planowanych wydatkach** = budżet − suma wszystkich wpisów
-  - **Rzeczywiście zostało** = budżet − suma opłaconych wpisów
-- Zapisywanie danych w `localStorage`
-- Działanie jako realne narzędzie (stan zachowany po odświeżeniu)
+- Monthly budget tracking
+- Planned vs actual spending overview
+- Expense categories
+- Mark expenses as paid
+- Automatic budget calculations
+- Persistent data using localStorage
+- Responsive UI with TailwindCSS
 
 ---
 
-## Decyzje techniczne
+## Technical Highlights
 
-### State management
-
-- `App.tsx` jest source of truth (`budget`, `items`)
-- Domain actions są trzymane blisko state — bez niepotrzebnych abstrakcji
-
-### Hook usage
-
-- `useMemo` — użyty do derived state (totals)
-- `useEffect` — tylko do side-effect (persist do localStorage)
-
-### Separation of concerns
-
-- Pure functions (np. obliczenia totals) → `utils/`
-- Typy domenowe → `types/`
-- Komponenty prezentacyjne → `components/`
-
-Uniknięto premature optimization i nadmiernej architektury (context/reducer/store), ponieważ skala aplikacji tego nie wymaga.
+- TypeScript-first approach with clear domain types
+- Separation between UI and business logic
+- useMemo used only where computation benefits from memoization
+- Minimal state management — no unnecessary abstraction
+- Clean component structure
+- Testing pyramid applied:
+  - Unit tests for business logic
+  - Integration tests for user interactions
+  - E2E tests for main user flow
 
 ---
 
-## Stack technologiczny
+## Tech Stack
 
 - React
 - TypeScript
-- Vite
 - TailwindCSS
+- Jest + React Testing Library
+- Playwright (E2E)
 
 ---
 
-## Struktura projektu
+## Testing Strategy
 
-```
-src/
-  components/
-    Header.tsx
-    BudgetSummary.tsx
-    ExpenseForm.tsx
-    ExpenseList.tsx
-    ExpenseRow.tsx
-  types/
-    budget.ts
-  utils/
-    storage.ts
-    totals.ts
-    money.ts
-    number.ts
-  App.tsx
-```
+The project demonstrates a layered testing approach:
+
+- **Unit tests** — budget calculation logic
+- **Integration tests** — form interactions and state updates
+- **E2E tests** — main user flow including persistence after reload
 
 ---
 
-## Uruchomienie lokalnie
+## Getting Started
+
+Install dependencies:
 
 ```bash
 npm install
+```
+
+Run development server:
+
+```bash
 npm run dev
+```
+
+Run unit and integration tests:
+
+```bash
+npm test
+```
+
+Run E2E tests:
+
+```bash
+npm run test:e2e
 ```
 
 ---
 
-## Pomysły na dalszy rozwój
+## Future Improvements
 
-- Priorytety wydatków (1–4) i analiza wpływu na budżet
-- Filtry po kategorii
-- Podsumowania per kategoria
-- Historia miesięcy
-- Eksport/import danych
+- Expense prioritization
+- Category summaries
+- Data export/import
+- Improved accessibility
 
 ---
 
-## Technical highlights
-
-Podczas tworzenia projektu skupiłam się na:
-
-- użyciu `useMemo` tylko do derived state (totals), bez trzymania danych pochodnych w state
-- użyciu `useEffect` wyłącznie do side effects (persist do localStorage)
-- unikaniu overengineeringu — brak context/store/reducer przy małej skali aplikacji
-- rozdzieleniu domain logic (utils) od komponentów UI
-- kontrolowanym formularzu z lokalnym state zamiast globalnego zarządzania formem
-
-Celem było stworzenie małego, ale realistycznego narzędzia zamiast demo aplikacji.
-
-## Autor
+## Author
 
  [Kamila Samczuk](https://github.com/Kamisia).
 
