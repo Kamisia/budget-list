@@ -19,7 +19,7 @@ const DEFAULT_BUDGET = 5000;
 
 
 export default function App() {
-//żeby localStorage czytany tylko raz (na mount)
+
  const [budget, setBudget] = useState<number>(() => {
     const initial = loadBudgetState();
     return initial?.budget ?? DEFAULT_BUDGET;

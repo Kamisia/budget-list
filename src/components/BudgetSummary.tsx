@@ -28,7 +28,7 @@ export function BudgetSummary({ budget, onBudgetChange, totals }: BudgetSummaryP
       </div>
 
       <div className="grid sm:grid-cols-2 gap-3">
-        <div
+        <div data-testid="planned-card"
           className={`p-3 rounded-lg border ${
             totals.plannedOver
               ? "border-red-700 bg-red-950/30"
@@ -49,7 +49,7 @@ export function BudgetSummary({ budget, onBudgetChange, totals }: BudgetSummaryP
           </div>
         </div>
 
-        <div
+        <div data-testid="actual-card"
           className={`p-3 rounded-lg border ${
             totals.actualOver
               ? "border-red-700 bg-red-950/30"
