@@ -53,4 +53,19 @@ describe("calculateTotals", () => {
     expect(t2.plannedOver).toBe(true);
     expect(t2.actualOver).toBe(true);
   });
+
+  it("does not set over flags when totals are exactly equal to budget", () => {
+    const items = [
+      item({ id: "1", price: 250, qty: 2, bought: true }),
+      item({ id: "2", price: 500, qty: 1, bought: false }),
+    ];
+
+    const t = calculateTotals(1000, items);
+    expect(t.plannedTotal).toBe(1000);
+    expect(t.spentTotal).toBe(500);
+    expect(t.plannedRemaining).toBe(0);
+    expect(t.actualRemaining).toBe(500);
+    expect(t.plannedOver).toBe(false);
+    expect(t.actualOver).toBe(false);
+  });
 });
